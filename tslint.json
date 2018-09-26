@@ -1,0 +1,16 @@
+{
+  "defaultSeverity": "error",
+  "extends": [
+    "tslint:recommended"
+  ],
+  "env": {
+    "node": true,
+    "es6": true
+  },
+  "jsRules": {},
+  "rules": {
+    "semicolon": [true, "always"],
+    "no-console": [false]
+  },
+  "rulesDirectory": []
+}

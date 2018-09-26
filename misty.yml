@@ -1,0 +1,6 @@
+server: 
+  cmd: yarn start
+  watchDir: ./dist
+
+watch:
+  cmd: tsc -w

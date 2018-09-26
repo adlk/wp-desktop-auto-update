@@ -1,0 +1,24 @@
+{
+  "name": "wp-desktop-auto-update",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "npx misty"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "morgan": "^1.9.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2"
+  },
+  "devDependencies": {
+    "@adlk/misty": "^0.1.1",
+    "@types/body-parser": "^1.17.0",
+    "@types/morgan": "^1.7.35",
+    "@types/node": "^10.10.3",
+    "@types/request-promise": "^4.1.42"
+  }
+}
