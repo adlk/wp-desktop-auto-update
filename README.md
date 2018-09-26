@@ -8,11 +8,9 @@ This is by far not complete and was only minimally tested.
 
 ### Check for updates
 
-- `/latest.yml` – Windows
-- `/latest-mac.yml` – macOS
-- `/latest-linux.yml` – Linux
-
-This config files can be served via a static 
+- `/latest.yml`
+- `/latest-mac.yml`
+- `/latest-linux.yml`
 
 ### Retrieve binary from github
 
@@ -37,7 +35,7 @@ Run `npm start` to launch server or `npm run dev` to start server in dev mode
 
 ### Test URLs (VS Code - REST Client)
 
-```ini
+```
 @HOST = http://localhost:4567
 
 # Updater
