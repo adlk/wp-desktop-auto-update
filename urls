@@ -12,5 +12,8 @@
 {{HOST}}/WordPress.com-3.5.0.tar.gz
 {{HOST}}/WordPress.com-3.5.0.deb
 
+# Legacy
+{{HOST}}/desktop/osx?compare=0.0.1
+
 # Webhook
 {{HOST}}/import-release

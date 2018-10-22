@@ -1,11 +1,13 @@
 import * as bodyParser from "body-parser";
 import express, { Router } from "express";
-import { readFileSync, writeFileSync } from "fs";
+import { readFileSync } from "fs";
 import logger from "morgan";
-import request from "request-promise";
 
-import { getLatestReleaseConfig } from "./helper/github";
-import { IAsset, IConfig } from "./types";
+import { getLatestPreReleaseConfig, getLatestReleaseConfig } from "./helper/github";
+import legacyRoutes from "./legacy";
+
+import { getAssetUrl, getConfig } from "./helper/release";
+import { Channel, IConfig, Platform } from "./types";
 
 class App {
   public express: express.Application;
@@ -25,21 +27,22 @@ class App {
   private routes(): void {
     const router = Router();
 
-    // TODO: add routes for to get latest mac, windows and linux  releases
+    // TODO: add routes to get latest mac, windows and linux  releases
 
     // Endpoint for Windows, macOS and Linux update
     router.get(/latest.*.yml$/, (req, res) => {
+      const channel = Channel.Stable;
       // TODO: add statistics call
 
-      let platform = "";
+      let platform: Platform = Platform.Windows;
       if (req.url.match(/^\/latest-mac.yml+(\?noCache=(.*))?/)) {
-        platform = "mac";
+        platform = Platform.OSX;
       } else if (req.url.match(/^\/latest-linux.yml+(\?noCache=(.*))?/)) {
-        platform = "linux";
+        platform = Platform.Linux;
       }
 
       try {
-        const data = readFileSync(`data/latest${platform ? `-${platform}` : ""}.yml`);
+        const data = getConfig(channel, platform);
 
         res.setHeader("Content-type", "text/yaml");
         res.end(data);
@@ -50,16 +53,17 @@ class App {
 
     // Endpoint to redirect download request to Github hosted binary
     router.get("/:file.:type(exe|zip|dmg|deb|tar.gz|blockmap)", (req, res) => {
+      const channel = Channel.Stable;
+
       const filename = `${req.params.file}.${req.params.type}`;
-      const config: IConfig = JSON.parse(readFileSync("data/release-config.json", "utf8"));
 
       // TODO: add statistics call
 
-      const asset = config.assets.find((a) => a.name === filename);
+      const url = getAssetUrl(channel, filename);
 
-      if (asset && asset.url) {
-        console.log("Redirecting to", asset.url);
-        res.redirect(asset.url);
+      if (url) {
+        console.log("Redirecting to", url);
+        res.redirect(url);
       } else {
         res.end("Nope");
       }
@@ -67,12 +71,14 @@ class App {
 
     // Webhook for Github "release" event
     router.get("/import-release", async (req, res) => {
-      const config = await getLatestReleaseConfig();
+      const release = await getLatestReleaseConfig();
+      const prerelease = await getLatestPreReleaseConfig();
 
-      res.json(config);
+      res.end("A8C for the win!");
     });
 
     this.express.use("/", router);
+    this.express.use("/", legacyRoutes);
   }
 
 }

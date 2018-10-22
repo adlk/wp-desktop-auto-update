@@ -1,12 +1,31 @@
-import { writeFileSync } from "fs";
+import { outputFile, outputJson } from "fs-extra";
 import request from "request-promise";
 
-import { IAsset } from "../types";
+import { Channel, IConfig } from "../types";
 
-interface IReleaseResponse {
-  name: string;
-  body: string;
-  assets: IAsset[];
+function writeConfigFiles(channel: Channel, data: IConfig) {
+  let assets = data.assets.map((asset) => ({
+    name: asset.name,
+    url: asset.browser_download_url,
+  }));
+
+  if (assets) {
+    assets.filter((asset) => asset.name.endsWith(".yml")).forEach(async (asset) => {
+      const content = await request(asset.url);
+
+      outputFile(`data/${channel}/${asset.name}`, content);
+    });
+
+    assets = assets.filter((asset) => !asset.name.endsWith(".yml") && !asset.name.endsWith(".json"));
+
+    const config = {
+      assets,
+      body: data.body,
+      name: data.name,
+    };
+
+    outputJson(`data/${channel}/release-config.json`, config);
+  }
 }
 
 export async function getLatestReleaseConfig() {
@@ -18,30 +37,30 @@ export async function getLatestReleaseConfig() {
         "User-Agent": "A8C",
       },
     });
-    const data: IReleaseResponse = JSON.parse(resp);
+    const data: IConfig = JSON.parse(resp);
 
-    let assets = data.assets.map((asset) => ({
-      name: asset.name,
-      url: asset.browser_download_url,
-    }));
+    writeConfigFiles(Channel.Stable, data);
+  } catch (err) {
+    console.log(err);
+  }
+}
 
-    if (assets) {
-      assets.filter((asset) => asset.name.endsWith(".yml")).forEach(async (asset) => {
-        const content = await request(asset.url);
+export async function getLatestPreReleaseConfig() {
+  // TODO: add check to skip prereleases if there is a newer stable release
+  const url = "https://api.github.com/repos/automattic/wp-desktop/releases";
 
-        writeFileSync(`data/${asset.name}`, content);
-      });
+  try {
+    const resp: string = await request(url, {
+      headers: {
+        "User-Agent": "A8C",
+      },
+    });
+    const releases: IConfig[] = JSON.parse(resp);
 
-      assets = assets.filter((asset) => !asset.name.endsWith(".yml") && !asset.name.endsWith(".json"));
+    const data = releases.find((d) => d.prerelease);
+    if (!data) { return; }
 
-      const config = {
-        assets,
-        body: data.body,
-        name: data.name,
-      };
-
-      writeFileSync("data/release-config.json", JSON.stringify(config));
-    }
+    writeConfigFiles(Channel.Beta, data);
   } catch (err) {
     console.log(err);
   }
