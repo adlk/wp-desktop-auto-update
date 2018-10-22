@@ -14,6 +14,7 @@
 
 # Legacy
 {{HOST}}/desktop/osx?compare=0.0.1
+# download endpoint not longer needed
 
 # Webhook
 {{HOST}}/import-release

@@ -50,6 +50,10 @@ Run `npm start` to launch server or `npm run dev` to start server in dev mode
 {{HOST}}/WordPress.com-3.5.0.tar.gz
 {{HOST}}/WordPress.com-3.5.0.deb
 
+# Legacy
+{{HOST}}/desktop/osx?compare=0.0.1
+# download endpoint not longer needed
+
 # Webhook
 {{HOST}}/import-release
 ```
